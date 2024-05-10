@@ -18,7 +18,7 @@
 * DB : Postgresql, redis
 * Docker
   
-* ~~배포, front(vue)~~
+* ~~EC2, front(vue)~~
 
 # 🤝역할 분담
 - 이시문
