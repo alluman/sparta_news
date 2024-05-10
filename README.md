@@ -14,7 +14,7 @@
     * 정렬기능
 
 ## 🖥️개발 환경
-* python : Django
+* python : Django, Drf
 * DB : Postgresql, redis
 * Docker
 
