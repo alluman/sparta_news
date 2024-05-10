@@ -13,6 +13,11 @@
     * 게시글, 댓글, 답글 : CRUD, 좋아요, 추천
     * 정렬기능
 
+## 🖥️개발 환경
+* python : Django
+* DB : Postgresql, redis
+* Docker
+
 # 🤝역할 분담
 - 이시문
     - 유저 : CRUD
@@ -26,10 +31,6 @@
     - 댓글, 답글 : CRUD
     - 좋아요, 추천
 
-## 🖥️개발 환경
-* python : Django
-* DB : Postgresql, redis
-* Docker
 
 # 🆗주요 기능
 - Spartanews
