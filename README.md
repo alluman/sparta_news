@@ -8,21 +8,23 @@
 * 2024.05.03일 - 2024.05.10일
 
 # 필요한 api
-    accounts - crud, login/logout jwt token
-    post, comments, reply crud
-    like/upvote 
+    * 유저 : CRUD
+    * Login, Logout jwt token
+    * 게시글, 댓글, 답글 : CRUD, 좋아요, 추천
+    * 정렬기능
 
 # 🤝역할 분담
 - 이시문
-    - 회원가입 / 로그인 / 로그아웃 API
-    - News CRUD
+    - 유저 : CRUD
+    - Login, Logout jwt token
+    - Post CRUD
     - Postgresql, redis, Docker
       
 - 양승조
     - News 리스트 보여주기 API
         - 리스트 포인트 많은 순으로 정렬하기
-    - News 댓글 API
-        - 대댓글 API
+    - 댓글, 답글 : CRUD
+    - 좋아요, 추천
 
 ## 🖥️개발 환경
 * python : Django
