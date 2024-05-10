@@ -6,19 +6,61 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from accounts.models import User
-from rest_framework import generics
 from .serializers import CommentSerializer, ReplySerializer
 
-
-class PostList(APIView):
+# pointlist
+class PointList(APIView):
     def get(self, request):
-        posts = Post.objects.all()
+        news = Post.objects.filter(type='news')
+        show = Post.objects.filter(type='show')
+        posts = list(news) + list(show)
         for post in posts:
             post.points = post.postlist_points()
         sorted_posts = sorted(posts, key=lambda x: x.points, reverse=True)
         serializer = PostSerializer(sorted_posts, many=True)
         return Response(serializer.data)
+    
+class NewsList(APIView):
+    def get(self, request):
+        posts = Post.objects.filter(type='news')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
 
+class AskList(APIView):
+    def get(self, request):
+        posts = Post.objects.filter(type='ask')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+    
+class ShowList(APIView):
+    def get(self, request):
+        posts = Post.objects.filter(type='show')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+class CommentsList(APIView):
+    def get(self, request):
+        comments = Comment.objects.all()
+        replies = Reply.objects.all()
+        comments_list = list(comments) + list(replies)
+        comments_list.sort(key=lambda x: x['created_at'], reverse=True)
+        return Response(comments_list)
+
+class MyCommentsList(APIView):
+    def get(self, request):
+        comments = Comment.objects.filter(author=request.user.id)
+        replies = Reply.objects.filter(author=request.user.id)
+        comments_list = list(comments) + list(replies)
+        comments_list.sort(key=lambda x: x['created_at'], reverse=True)
+        return Response(comments_list)
+
+class UserCommentsList(APIView):
+    def get(self, request, userid):
+        comments = Comment.objects.filter(author = userid)
+        replies = Reply.objects.filter(author = userid)
+        comments_list = list(comments) + list(replies)
+        comments_list.sort(key=lambda x: x['created_at'], reverse=True)
+        return Response(comments_list)
 
 class PostCreate(APIView):
     def post(self, request):
@@ -30,13 +72,13 @@ class PostCreate(APIView):
             return Response({"message": "등록완료", "productId": product.id}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
 
 class PostDetail(APIView):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         serializer = PostSerializer(post)
-        return Response(serializer.data)
+        return Response(serializer.data) 
 
     def patch(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
@@ -66,6 +108,7 @@ class CommentCreate(APIView):
 
 
 class CommentUpdate(APIView):
+
     def get(self, request, post_id, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id, post__id=post_id)
         serializer = CommentSerializer(comment)
@@ -85,34 +128,14 @@ class CommentUpdate(APIView):
         comment.delete()
         return Response({"message": "삭제완료"}, status=status.HTTP_204_NO_CONTENT)
 
+class PostCommentsList(APIView):
 
-class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-
-class CommentsList(APIView):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         comments = Comment.objects.filter(
             post=post).order_by('created_at').values()
         replies = Reply.objects.filter(
             comment__post=post).order_by('created_at').values()
-        post_list = list(comments) + list(replies)
-        post_list.sort(key=lambda x: x['created_at'], reverse=True)
-        return Response(post_list)
-
-
-# 메뉴의 [쓰레드] 누르면 작성한 comments, reply 모두 최신순으로 나열
-
-
-class UserCommentsListView(APIView):
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
-        comments = Comment.objects.filter(
-            author=user).order_by('created_at').values()
-        replies = Reply.objects.filter(
-            author=user).order_by('created_at').values()
         post_list = list(comments) + list(replies)
         post_list.sort(key=lambda x: x['created_at'], reverse=True)
         return Response(post_list)
@@ -127,6 +150,25 @@ class ReplyCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ReplyUpdateAPIView(APIView):
+
+    def get(self, request, reply_id):
+        reply = get_object_or_404(Reply, id=reply_id)
+        serializer = ReplySerializer(reply)
+        return Response(serializer.data)
+
+    def patch(self, request, reply_id):
+        reply = get_object_or_404(Reply, id=reply_id)
+        serializer = ReplySerializer(reply, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "수정완료", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, reply_id):
+        reply = get_object_or_404(Reply, id=reply_id)
+        reply.delete()
+        return Response({"message": "삭제완료"}, status=status.HTTP_204_NO_CONTENT)
 
 class ReplyListAPIView(APIView):
     def get(self, request, comment_id):
@@ -134,3 +176,5 @@ class ReplyListAPIView(APIView):
         replies = comment.reply_comments.all()
         serializer = ReplySerializer(replies, many=True)
         return Response(serializer.data)
+    
+    

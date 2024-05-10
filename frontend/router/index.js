@@ -4,7 +4,7 @@ import DetailPage from '../src/views/DetailPage.vue';
 import CommentsPage from '../src/views/CommentsPage.vue';
 import SignupLoginPage from '../src/views/SignupLoginPage.vue';
 import UserProfilePage from '../src/views/UserProfilePage.vue';
-import PostsPage from '../src/views/PostsPage.vue';
+import PostsPage from '../src/views/PointList.vue';
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
